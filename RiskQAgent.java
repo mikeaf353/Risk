@@ -88,15 +88,16 @@ public class RiskQAgent
         final int actionDecoderInputDim = stateEncodingDim + numActionFeatures;
         Sequential actionDecoder = new Sequential();
         actionDecoder.add(new Dense(actionDecoderInputDim, 32));
-        actionDecoder.add(new Sigmoid());
+        actionDecoder.add(new ReLU());
         actionDecoder.add(new Dense(32, 1));
+        new ReLU();
 
         // build the placement decoder...also a sequential model whose input vector has size
         // (stateEncodingDim + numPlacementFeatures) that (eventually) produces a single q-value
         final int placementDecoderInputDim = stateEncodingDim + numPlacementFeatures;
         Sequential placementDecoder = new Sequential();
         placementDecoder.add(new Dense(placementDecoderInputDim, 32));
-        placementDecoder.add(new Sigmoid());
+        placementDecoder.add(new ReLU());
         placementDecoder.add(new Dense(32, 1));
 
         return new DualDecoderModel(encoder, actionDecoder, placementDecoder);
@@ -196,7 +197,13 @@ public class RiskQAgent
                                                 final int actionCounter,
                                                 final boolean canRedeemCards)
     {
-        return (new Random()).nextBoolean();
+        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double randFloat = (new Random()).nextDouble();
+        if(randFloat > epsilon) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -232,7 +239,13 @@ public class RiskQAgent
                                                               final int actionCounter,
                                                               final boolean canRedeemCards)
     {
-        return (new Random()).nextBoolean();
+        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double randFloat = (new Random()).nextDouble();
+        if(randFloat > epsilon) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -268,7 +281,13 @@ public class RiskQAgent
                                                      final int actionCounter,
                                                      final boolean canRedeemCards)
     {
-        return (new Random()).nextBoolean();
+        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double randFloat = (new Random()).nextDouble();
+        if(randFloat > epsilon) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -305,8 +324,15 @@ public class RiskQAgent
                                                final boolean isDuringSetup,
                                                final int remainingArmies)
     {
-        return (new Random()).nextBoolean();
+
+        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double randFloat = (new Random()).nextDouble();
+        if(randFloat > epsilon) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
 }
-
