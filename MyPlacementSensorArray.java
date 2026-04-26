@@ -62,8 +62,10 @@ public class MyPlacementSensorArray
                 }
             }
         }
-        sdr = strongest/totalenemies;
-        tdr = totalarmies/totalenemies;
+        if(totalenemies != 0) {
+            sdr = strongest/totalenemies;
+            tdr = totalarmies/totalenemies;
+        }
 
         fin.set(0, 0, totalarmies);
         fin.set(0, 1, totalenemies);
@@ -75,4 +77,3 @@ public class MyPlacementSensorArray
     }
 
 }
-
