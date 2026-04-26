@@ -74,10 +74,15 @@ public class MyActionSensorArray
                 }
             }
 
-            aratio = aarmies/ddarmies;
-            totalthreat = aarmies/totalenemies;
-
-            strongestratio = aarmies/strongest;
+            if(ddarmies != 0) {
+                aratio = aarmies/ddarmies;
+            }
+            if(totalenemies != 0) {
+                totalthreat = aarmies/totalenemies;
+            }
+            if(strongest != 0) {
+                strongestratio = aarmies/strongest;
+            }
 
             fin.set(0, 0, aarmies);
             fin.set(0, 1, ddarmies);
@@ -137,12 +142,22 @@ public class MyActionSensorArray
                     }
                 }
             }
-            str = sourcearmy/stotale;
-            ssr = sourcearmy/sso;
 
-            ttr = targetarmy/ttotale;
-            tsr = targetarmy/tso;
+
+            if( stotale != 0) {
+                str = sourcearmy/stotale;
+            }
+            if( sso != 0) {
+                ssr = sourcearmy/sso;
+            }
+            if( ttotale != 0) {
+                ttr = targetarmy/ttotale;
+            }
+            if( tso != 0) {
+                tsr = targetarmy/tso;
+            }
             
+
             fin.set(0, 0, sourcearmy);
             fin.set(0, 1, stotale);
             fin.set(0, 2, str);
@@ -165,7 +180,6 @@ public class MyActionSensorArray
             fin.set(0, 3, a.card3().armyValue());
         }
         else {//NoAction instance
-            System.out.println("No action :/");
             fin.set(0, 0, 1.0); //this way the model can tell if no action comes up, this may not be relevent lol
         }
 
@@ -176,4 +190,3 @@ public class MyActionSensorArray
     }
 
 }
-
