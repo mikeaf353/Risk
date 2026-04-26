@@ -42,8 +42,8 @@ public class MyActionRewardFunction
         super(RewardType.HALF_TRANSITION, agentId); // change this enum if you don't want to do R(s)
     }
 
-    public double getLowerBound() { return 0.0; }
-    public double getUpperBound() { return 100.0; }
+    public double getLowerBound() { return -30.0; }
+    public double getUpperBound() { return 30.0; }
 
     public boolean hasEnemy(final GameView state, final Territory action){
     Set<Territory> neighbors = action.adjacentTerritories(); //get neighbors
@@ -83,14 +83,18 @@ public class MyActionRewardFunction
             double enemies = tov.getArmies();
 
             if(enemies != 0) {
-                if(myArmies / enemies >= 1.5){
-                    reward += 10;
+                if(myArmies / enemies >= 2.0){
+                    reward += 20;
+                } else if(myArmies / enemies >= 1.5) {
+                    reward += 12;
+                } else if(myArmies / enemies < 1.0) {
+                    reward -= 12;
                 }
             }
             
 
             if(myArmies < 4){
-                reward -= 5;
+                reward -= 10;
             }
             
         }
@@ -119,12 +123,12 @@ public class MyActionRewardFunction
                 }
                 int remain = fov.getArmies() - deltaArmies;
                 if(remain < forStrongest){ //punish weakening a position
-                    reward -= 5;
+                    reward -= 12;
                 }
             }
 
             if(hasEnemy(state, t)){
-                Set<Territory> neighbors = f.adjacentTerritories();
+                Set<Territory> neighbors = t.adjacentTerritories();
                 double toTotalEnemies = 0.0;
                 double toStrongest = 0.0;
 
@@ -139,17 +143,19 @@ public class MyActionRewardFunction
                 }
                 int remain = tov.getArmies() + deltaArmies;
                 if(remain > toStrongest){ //punish weakening a position
-                    reward += 5;
+                    reward += 15;
                 }
             }
         }
         else if(action instanceof RedeemCardsAction){
 
-            reward += 10;
+            reward += 20;
 
         }
         else {//NoAction instance
+            return -1;
         }
+            reward -= 5;
             return reward; }
 
     /** {@inheritDoc} */
