@@ -74,8 +74,17 @@ public class MyStateSensorArray
         for(int i = 0; i < info.length; i = i + 3){
 
             if(info[i] == this.getAgentId()){
-                fin.set(0, 0, (info[i+1] / TotalArmy));
-                fin.set(0, 1, (info[i+2] / TotalTerritory));
+                if(TotalArmy != 0) {
+                    fin.set(0, 0, (info[i+1] / TotalArmy));
+                } else {
+                    fin.set(0, 0, 0);
+                }
+                if(TotalTerritory != 0 ) {
+                    fin.set(0, 1, (info[i+2] / TotalTerritory));
+                } else {
+                    fin.set(0, 1, 0);
+                }
+                
             }else{
                 if(MaxOppArmy < info[i+1]){
                     MaxOppArmy = info[i+1];
@@ -87,13 +96,25 @@ public class MyStateSensorArray
                 TotalOppTerritory += info[i+2];
             }
         }
-        fin.set(0, 2, MaxOppArmy/TotalArmy);
-        fin.set(0, 3, MaxOppTerritory/TotalTerritory);
-        fin.set(0, 4, TotalOppArmy/TotalArmy);
-        fin.set(0, 5, TotalOppTerritory/TotalTerritory);
+
+        if(TotalArmy != 0) {
+            fin.set(0, 2, MaxOppArmy/TotalArmy);
+            fin.set(0, 4, TotalOppArmy/TotalArmy);
+        } else {
+            fin.set(0, 2, 0);
+            fin.set(0, 4, 0);
+        }
+        if(TotalTerritory != 0 ) {
+            fin.set(0, 3, MaxOppTerritory/TotalTerritory);
+            fin.set(0, 5, TotalOppTerritory/TotalTerritory);
+        } else {
+            fin.set(0, 3, 0);
+            fin.set(0, 5, 0);
+        }
+        
+        
         return fin; // row vector
 
     }
 
 }
-
