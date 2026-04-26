@@ -31,7 +31,7 @@ public class MyPlacementRewardFunction
 
     public MyPlacementRewardFunction(final int agentId)
     {
-        super(RewardType.STATE, agentId); // change this enum if you don't want to do R(s)
+        super(RewardType.HALF_TRANSITION, agentId); // change this enum if you don't want to do R(s)
     }
 
     public boolean hasEnemy(final GameView state, final Territory action){
@@ -90,14 +90,18 @@ public class MyPlacementRewardFunction
         }
         int placedArmy = tov.getArmies() + 1;
 
+        
         if(hasEnemy(state, action)){
             if(placedArmy >= strongest){ //reward defending threatened territories
                 reward += 10;
             }
             
-            if(placedArmy >= totalEnemies/numEnemies){ // reward good expansion, div by 0 watch
-                reward += 5;
+            if(numEnemies != 0) {
+                if(placedArmy >= totalEnemies/numEnemies){ // reward good expansion, div by 0 watch
+                    reward += 5;
+                }
             }
+            
         
             if(placedArmy >= (2 * strongest)){ //punish being over defended
                 reward -= 5;
@@ -118,4 +122,3 @@ public class MyPlacementRewardFunction
                                           final GameView nextState) { return Double.NEGATIVE_INFINITY; }
 
 }
-
