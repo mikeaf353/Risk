@@ -39,7 +39,7 @@ public class MyActionRewardFunction
 
     public MyActionRewardFunction(final int agentId)
     {
-        super(RewardType.STATE, agentId); // change this enum if you don't want to do R(s)
+        super(RewardType.HALF_TRANSITION, agentId); // change this enum if you don't want to do R(s)
     }
 
     public double getLowerBound() { return 0.0; }
@@ -82,9 +82,12 @@ public class MyActionRewardFunction
             double myArmies = fov.getArmies();
             double enemies = tov.getArmies();
 
-            if(myArmies / enemies >= 1.5){
-                reward += 10;
+            if(enemies != 0) {
+                if(myArmies / enemies >= 1.5){
+                    reward += 10;
+                }
             }
+            
 
             if(myArmies < 4){
                 reward -= 5;
@@ -141,9 +144,11 @@ public class MyActionRewardFunction
             }
         }
         else if(action instanceof RedeemCardsAction){
+
+            reward += 10;
+
         }
         else {//NoAction instance
-
         }
             return reward; }
 
@@ -153,6 +158,3 @@ public class MyActionRewardFunction
                                           final GameView nextState) { return Double.NEGATIVE_INFINITY; }
 
 }
-
-
-
