@@ -61,6 +61,8 @@ public class RiskQAgent
         super(agentId);
     }
 
+    private int turns = 0;
+
     @Override
     public void onTurnEnd(final GameView game,
                         final int agentIdx)
@@ -109,6 +111,11 @@ public class RiskQAgent
         placementDecoder.add(new Dense(32, 1));
 
         return new DualDecoderModel(encoder, actionDecoder, placementDecoder);
+    }
+
+    private double epsilon() {
+        turns++;
+        return Math.pow(0.9999, turns);
     }
 
     /**
@@ -211,7 +218,7 @@ public class RiskQAgent
                                                 final int actionCounter,
                                                 final boolean canRedeemCards)
     {
-        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double epsilon = epsilon();
         double randFloat = (new Random()).nextDouble();
         if(randFloat > epsilon) {
             return false;
@@ -253,7 +260,7 @@ public class RiskQAgent
                                                               final int actionCounter,
                                                               final boolean canRedeemCards)
     {
-        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double epsilon = epsilon();
         double randFloat = (new Random()).nextDouble();
         if(randFloat > epsilon) {
             return false;
@@ -295,7 +302,7 @@ public class RiskQAgent
                                                      final int actionCounter,
                                                      final boolean canRedeemCards)
     {
-        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double epsilon = epsilon();
         double randFloat = (new Random()).nextDouble();
         if(randFloat > epsilon) {
             return false;
@@ -339,7 +346,7 @@ public class RiskQAgent
                                                final int remainingArmies)
     {
 
-        double epsilon = Math.pow(0.9999, game.getNumTurns());
+        double epsilon = epsilon();
         double randFloat = (new Random()).nextDouble();
         if(randFloat > epsilon) {
             return false;
