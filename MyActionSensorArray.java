@@ -60,7 +60,7 @@ public class MyActionSensorArray
             double totalthreat = 0;
 
             double strongestratio = 0;
-            double strongest = -1;
+            double strongest = 0;
 
 
             Set<Territory> neighbors = t.adjacentTerritories();
