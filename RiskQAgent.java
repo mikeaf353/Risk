@@ -6,12 +6,14 @@ import edu.bu.jnn.models.Sequential;
 
 import edu.bu.pas.risk.GameView;
 import edu.bu.pas.risk.action.Action;
+import edu.bu.pas.risk.action.NoAction;
 import edu.bu.pas.risk.agent.NeuralQAgent;
 import edu.bu.pas.risk.agent.rewards.RewardFunction;
 import edu.bu.pas.risk.agent.senses.*;
 import edu.bu.pas.risk.model.DualDecoderModel;
 import edu.bu.pas.risk.territory.Territory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -59,6 +61,13 @@ public class RiskQAgent
         super(agentId);
     }
 
+    @Override
+    public void onTurnEnd(final GameView game,
+                        final int agentIdx)
+    {
+        
+    }
+
     /**
      * A method to create your neural network architecture. This is done by making three separate {@link Sequential}
      * instances (with appropriate dimensions) and then chucking them into the {@link DualDecoderModel} class I made
@@ -90,7 +99,6 @@ public class RiskQAgent
         actionDecoder.add(new Dense(actionDecoderInputDim, 32));
         actionDecoder.add(new ReLU());
         actionDecoder.add(new Dense(32, 1));
-        new ReLU();
 
         // build the placement decoder...also a sequential model whose input vector has size
         // (stateEncodingDim + numPlacementFeatures) that (eventually) produces a single q-value
@@ -178,7 +186,13 @@ public class RiskQAgent
                                              final int actionCounter,
                                              final boolean canRedeemCards)
     {
-        final List<Action> options = this.getRedeemActions(game, actionCounter, canRedeemCards, true);
+        List<Action> options = null;
+        if(game.getAgentInventory(this.agentId()).size() >= 5) {
+            options = this.getRedeemActions(game, actionCounter, canRedeemCards, false);
+        } else {
+            options = this.getRedeemActions(game, actionCounter, canRedeemCards, true);
+        }
+
         return chooseRandom(options, new Random());
     }
 
