@@ -22,7 +22,7 @@ public class MyPlacementSensorArray
     extends PlacementSensorArray
 {
 
-    public static final int NUM_FEATURES = 5;
+    public static final int NUM_FEATURES = 4; // Reduced to 4 from 5
 
     public MyPlacementSensorArray(final int agentId)
     {
@@ -55,7 +55,7 @@ public class MyPlacementSensorArray
                     //1. Cur armies 2. total enemys 3. strongest defence ratio 4. total defence ratio
                     if(o.getOwner() != this.getAgentId()){
                         totalenemies += o.getArmies();
-                        if(o.getArmies() < strongest){
+                        if(o.getArmies() > strongest){
                             strongest = o.getArmies();
                         }
                     }
