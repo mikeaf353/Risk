@@ -50,8 +50,8 @@ public class MyPlacementRewardFunction
     }
 
 
-    public double getLowerBound() { return 0.0; }
-    public double getUpperBound() { return 100.0; }
+    public double getLowerBound() { return -30.0; }
+    public double getUpperBound() { return 30.0; }
 
     /** {@inheritDoc} */
     public double getStateReward(final GameView state) { return 10.0; } // this sucks you'll need to change this
@@ -93,7 +93,7 @@ public class MyPlacementRewardFunction
         
         if(hasEnemy(state, action)){
             if(placedArmy >= strongest){ //reward defending threatened territories
-                reward += 10;
+                reward += 8;
             }
             
             if(numEnemies != 0) {
@@ -104,16 +104,16 @@ public class MyPlacementRewardFunction
             
         
             if(placedArmy >= (2 * strongest)){ //punish being over defended
-                reward -= 5;
+                reward -= 10;
             }
 
         }
         else{
-            reward -= 3; //punish placing on a safe spot
+            reward -= 5; //punish placing on a safe spot
         }
 
 
-        
+        reward -= 1;
         return reward; }
 
     /** {@inheritDoc} */
