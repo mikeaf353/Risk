@@ -12,6 +12,7 @@ import edu.bu.pas.risk.action.Action;
 import edu.bu.pas.risk.action.AttackAction;
 import edu.bu.pas.risk.action.FortifyAction;
 import edu.bu.pas.risk.action.RedeemCardsAction;
+import edu.bu.pas.risk.action.NoAction;
 import edu.bu.pas.risk.territory.Territory;
 import edu.bu.pas.risk.util.Registry;
 import edu.bu.pas.risk.agent.senses.ActionSensorArray;
@@ -31,12 +32,15 @@ public class MyActionSensorArray
     extends ActionSensorArray
 {
 
-    public static final int NUM_FEATURES = 10;
+    public static final int NUM_FEATURES = 25;
 
     public MyActionSensorArray(final int agentId)
     {
         super(agentId);
     }
+
+    // Sensor Array [action 0-3][src 4-8][dst 9-13][attack 14-17][fortify 18-20][redeem 21-24]
+    // Action - attack=0, fortify=1, redeem=2, nothing=3
 
     public Matrix getSensorValues(final GameView state,
                                   final int actionCounter,
@@ -44,56 +48,40 @@ public class MyActionSensorArray
     {
 
         Matrix fin = Matrix.full(1, NUM_FEATURES, 0);
-        if(action instanceof AttackAction){
-            //1. My armies 2.Enemy Armies 3. attack ratio 4.TotalBadNeighbors 5.totalthreatratio 
-            //6.strongest negihbor ratio 7.strongest negithbor army  
-            AttackAction a = (AttackAction) action;
-            Territory t = a.to(); //get the territory thats to be attacked
-            Territory f = a.from();
-            Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
-            TerritoryOwnerView tov = owners.getById(t.id());
-            TerritoryOwnerView fov = owners.getById(f.id());
-            double aarmies = fov.getArmies(); //my armies
-            double ddarmies = tov.getArmies(); // enemy armies
-            double aratio = 0;
-            double totalenemies = 0;
-            double totalthreat = 0;
 
-            double strongestratio = 0;
-            double strongest = 0;
+        Territory t = null;
+        Territory f = null;
+        if(action instanceof NoAction) {
+            fin.set(0, 3, 1.0);
+            return fin;
 
+        } else if(action instanceof FortifyAction) {
+            FortifyAction fa = (FortifyAction) action;
+            t = fa.to();
+            f = fa.from();
 
-            Set<Territory> neighbors = t.adjacentTerritories();
-            for(Territory n : neighbors){
-                TerritoryOwnerView nov = owners.getById(n.id());
-                if(nov.getOwner() != this.getAgentId()){
-                    totalenemies += nov.getArmies();
-                    if(nov.getArmies() > strongest){
-                        strongest = nov.getArmies();
-                    }
-                }
-            }
+        } else if(action instanceof AttackAction) {
+            AttackAction aa = (AttackAction) action;
+            t = aa.to();
+            f = aa.from();
 
-            if(ddarmies != 0) {
-                aratio = aarmies/ddarmies;
-            }
-            if(totalenemies != 0) {
-                totalthreat = aarmies/totalenemies;
-            }
-            if(strongest != 0) {
-                strongestratio = aarmies/strongest;
-            }
+        } else if(action instanceof RedeemCardsAction) {
+            RedeemCardsAction ra = (RedeemCardsAction) action;
+            int tradeInNum = 1 +  state.getNumPreviousRedemptions();
+            int armiesRedeemed = TerritoryCard.getRedemptionAmount(tradeInNum);
 
-            fin.set(0, 0, aarmies);
-            fin.set(0, 1, ddarmies);
-            fin.set(0, 2, aratio);
-            fin.set(0, 3, totalenemies);
-            fin.set(0, 4, totalthreat);
-            fin.set(0, 5, strongestratio);
-            fin.set(0, 6, strongest);
+            //action
+            fin.set(0, 2, 1.0);
+            //redeem
+            fin.set(0, 21, armiesRedeemed);
+            fin.set(0, 22, ra.card1().armyValue());
+            fin.set(0, 23, ra.card2().armyValue());
+            fin.set(0, 24, ra.card3().armyValue());
+            
+            return fin;
         }
-        else if(action instanceof FortifyAction){
-            //1.source armies  2.total enemies 3.source threat ratio 4.source strongest opp 5.sources strongest ratio
+
+        //1.source armies  2.total enemies 3.source threat ratio 4.source strongest opp 5.sources strongest ratio
             //6.targetarmies  7.target total enemies 8. target threat ratio 9.target strongest opp 10.target strongest ratio 
         
             double sourcearmy = 0;
@@ -108,12 +96,7 @@ public class MyActionSensorArray
             double tso = 0;
             double tsr = 0;
 
-
-
             
-            FortifyAction a = (FortifyAction) action;
-            Territory t = a.to(); //get the territory thats to be attacked
-            Territory f = a.from();
             Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
             TerritoryOwnerView tov = owners.getById(t.id());
             TerritoryOwnerView sov = owners.getById(f.id());
@@ -157,34 +140,61 @@ public class MyActionSensorArray
                 tsr = targetarmy/tso;
             }
             
+            //src
+            fin.set(0, 4, sourcearmy);
+            fin.set(0, 5, stotale);
+            fin.set(0, 6, str);
+            fin.set(0, 7, sso);
+            fin.set(0, 8, ssr);
+            //dst
+            fin.set(0, 9, targetarmy);
+            fin.set(0, 10, ttotale);
+            fin.set(0, 11, ttr);
+            fin.set(0, 12, tso);
+            fin.set(0, 13, tsr);
 
-            fin.set(0, 0, sourcearmy);
-            fin.set(0, 1, stotale);
-            fin.set(0, 2, str);
-            fin.set(0, 3, sso);
-            fin.set(0, 4, ssr);
-            fin.set(0, 5, targetarmy);
-            fin.set(0, 6, ttotale);
-            fin.set(0, 7, ttr);
-            fin.set(0, 8, tso);
-            fin.set(0, 9, tsr);
+
+        if(action instanceof AttackAction){
+            //1. My armies 2.Enemy Armies 3. attack ratio 4.TotalBadNeighbors 5.totalthreatratio 
+            //6.strongest negihbor ratio 7.strongest negithbor army
+            double aratio = 0;
+            double totalthreat = 0;
+            double threeDice = 0;
+            double armyDif = sourcearmy - targetarmy;
+
+            if(targetarmy != 0) {
+                aratio = sourcearmy/targetarmy;
+            }
+            if(ttotale != 0) {
+                totalthreat = sourcearmy/ttotale;
+            }
+            if(sourcearmy >= 4) {
+                threeDice = 1.0;
+            }
+
+            //action
+            fin.set(0, 0, 1.0);
+            //attack
+            fin.set(0, 14, aratio);
+            fin.set(0, 15, totalthreat);
+            fin.set(0, 16, threeDice);
+            fin.set(0, 17, armyDif);
+        }
+        else if(action instanceof FortifyAction){
+            FortifyAction fa = (FortifyAction) action;
+            int delta = fa.deltaArmies();
+            double sourceDelta = sourcearmy - delta;
+            double targetDelta = targetarmy + delta;
+
+            //action
+            fin.set(0, 1, 1.0);
+            //fortify
+            fin.set(0, 18, delta);
+            fin.set(0, 19, sourceDelta);
+            fin.set(0, 20, targetDelta);
+            
 
         }
-        else if(action instanceof RedeemCardsAction){
-            RedeemCardsAction a = (RedeemCardsAction) action;
-            int tradeInNum = 1 +  state.getNumPreviousRedemptions();
-            int armiesRedeemed = TerritoryCard.getRedemptionAmount(tradeInNum);
-            fin.set(0, 0, armiesRedeemed);
-            fin.set(0, 1, a.card1().armyValue());
-            fin.set(0, 2, a.card2().armyValue());
-            fin.set(0, 3, a.card3().armyValue());
-        }
-        else {//NoAction instance
-            fin.set(0, 0, 1.0); //this way the model can tell if no action comes up, this may not be relevent lol
-        }
-
-
-        
 
         return fin; // row vector
     }
