@@ -42,8 +42,8 @@ public class MyActionRewardFunction
         super(RewardType.HALF_TRANSITION, agentId); // change this enum if you don't want to do R(s)
     }
 
-    public double getLowerBound() { return -30.0; }
-    public double getUpperBound() { return 30.0; }
+    public double getLowerBound() { return -1.0; }
+    public double getUpperBound() { return 1.0; }
 
     public boolean hasEnemy(final GameView state, final Territory action){
     Set<Territory> neighbors = action.adjacentTerritories(); //get neighbors
@@ -84,17 +84,17 @@ public class MyActionRewardFunction
 
             if(enemies != 0) {
                 if(myArmies / enemies >= 2.0){
-                    reward += 20;
+                    reward += 0.8;
                 } else if(myArmies / enemies >= 1.5) {
-                    reward += 12;
+                    reward += 0.6;
                 } else if(myArmies / enemies < 1.0) {
-                    reward -= 12;
+                    reward -= 0.5;
                 }
             }
             
 
             if(myArmies < 4){
-                reward -= 10;
+                reward -= 0.2;
             }
             
         }
@@ -123,7 +123,7 @@ public class MyActionRewardFunction
                 }
                 int remain = fov.getArmies() - deltaArmies;
                 if(remain < forStrongest){ //punish weakening a position
-                    reward -= 12;
+                    reward -= 0.4;
                 }
             }
 
@@ -143,20 +143,25 @@ public class MyActionRewardFunction
                 }
                 int remain = tov.getArmies() + deltaArmies;
                 if(remain > toStrongest){ //punish weakening a position
-                    reward += 15;
+                    reward += 0.3;
                 }
             }
         }
         else if(action instanceof RedeemCardsAction){
 
-            reward += 20;
+            reward += 0.4;
 
         }
         else {//NoAction instance
             return -1;
         }
-            reward -= 5;
+            reward -= 0.1;
             return reward; }
+
+
+            // <4 troops limits the capacity for the agent to learn. Allow the agent to discover good strategies on its own
+            // Increase gamma - how far the agent looks in the future - Look at 0.99? . IE-3 or 4 for learning rate
+            // 
 
     /** {@inheritDoc} */
     public double getFullTransitionReward(final GameView state,
