@@ -8,6 +8,7 @@ import edu.bu.pas.risk.util.Registry;
 import edu.bu.pas.risk.GameView;
 import edu.bu.pas.risk.TerritoryOwnerView;
 import edu.bu.pas.risk.agent.senses.PlacementSensorArray;
+import edu.bu.pas.risk.territory.Continent;
 import edu.bu.pas.risk.territory.Territory;
 
 
@@ -22,7 +23,7 @@ public class MyPlacementSensorArray
     extends PlacementSensorArray
 {
 
-    public static final int NUM_FEATURES = 4; // Reduced to 4 from 5
+    public static final int NUM_FEATURES = 6; // Reduced to 4 from 5
 
     public MyPlacementSensorArray(final int agentId)
     {
@@ -38,6 +39,26 @@ public class MyPlacementSensorArray
         Set<Territory> neighbors = territory.adjacentTerritories();
         Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
 
+        //Continent section
+        Continent continent = territory.continent();
+        int continentId = continent.id();
+        Set<Territory> continentTerritories = continent.territories(); 
+
+        int continentPercent = 0;
+        int territoriesOwned = 0;
+
+        for(Territory myTerritory : continentTerritories){
+            TerritoryOwnerView nov = owners.getById(myTerritory.id());
+            if(nov.getOwner() == this.getAgentId()){
+                territoriesOwned++;
+            }
+        }
+
+        if(continentTerritories.size() != 0){
+            continentPercent = territoriesOwned/continentTerritories.size();
+        }
+
+        //Continent section
         double totalarmies = 0;
 
         double totalenemies = 0;
@@ -71,6 +92,8 @@ public class MyPlacementSensorArray
         fin.set(0, 1, totalenemies);
         fin.set(0, 2, sdr);
         fin.set(0, 3, tdr);
+        fin.set(0, 4, continentId);
+        fin.set(0, 5, continentPercent);
 
 
         return fin; // row vector
