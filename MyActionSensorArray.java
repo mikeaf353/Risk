@@ -13,6 +13,7 @@ import edu.bu.pas.risk.action.AttackAction;
 import edu.bu.pas.risk.action.FortifyAction;
 import edu.bu.pas.risk.action.RedeemCardsAction;
 import edu.bu.pas.risk.action.NoAction;
+import edu.bu.pas.risk.territory.Continent;
 import edu.bu.pas.risk.territory.Territory;
 import edu.bu.pas.risk.util.Registry;
 import edu.bu.pas.risk.agent.senses.ActionSensorArray;
@@ -32,7 +33,7 @@ public class MyActionSensorArray
     extends ActionSensorArray
 {
 
-    public static final int NUM_FEATURES = 25;
+    public static final int NUM_FEATURES = 29;
 
     public MyActionSensorArray(final int agentId)
     {
@@ -73,16 +74,16 @@ public class MyActionSensorArray
             //action
             fin.set(0, 2, 1.0);
             //redeem
-            fin.set(0, 21, armiesRedeemed);
-            fin.set(0, 22, ra.card1().armyValue());
-            fin.set(0, 23, ra.card2().armyValue());
-            fin.set(0, 24, ra.card3().armyValue());
+            fin.set(0, 25, armiesRedeemed);
+            fin.set(0, 26, ra.card1().armyValue());
+            fin.set(0, 27, ra.card2().armyValue());
+            fin.set(0, 28, ra.card3().armyValue());
             
             return fin;
         }
 
-        //1.source armies  2.total enemies 3.source threat ratio 4.source strongest opp 5.sources strongest ratio
-            //6.targetarmies  7.target total enemies 8. target threat ratio 9.target strongest opp 10.target strongest ratio 
+        //1.source armies  2.total enemies 3.source threat ratio 4.source strongest opp 5.sources strongest ratio 
+            //6.targetarmies  7.target total enemies 8. target threat ratio 9.target strongest opp 10.target strongest ratio  
         
             double sourcearmy = 0;
             double stotale = 0;
@@ -102,6 +103,45 @@ public class MyActionSensorArray
             TerritoryOwnerView sov = owners.getById(f.id());
             Set<Territory> targetneighbors = t.adjacentTerritories();
             Set<Territory> sourceneighbors = f.adjacentTerritories();
+
+            //Continent seciton
+            Continent toContinent = t.continent();
+            Continent fromContinent = f.continent();
+            int toContinentId = toContinent.id();
+            int fromContinentId = fromContinent.id();
+
+            Set<Territory> toContinentTerritories = toContinent.territories(); 
+            Set<Territory> fromContinentTerritories = fromContinent.territories(); 
+
+            double toContinentPercent = 0;
+            double toTerritoriesOwned = 0;
+
+            double fromContinentPercent = 0;
+            double fromTerritoriesOwned = 0;
+
+
+            for(Territory toTerritory : toContinentTerritories){
+                TerritoryOwnerView nov = owners.getById(toTerritory.id());
+                if(nov.getOwner() == this.getAgentId()){
+                    toTerritoriesOwned++;
+                }
+            }
+            for(Territory fromTerritory : fromContinentTerritories){
+                TerritoryOwnerView nov = owners.getById(fromTerritory.id());
+                if(nov.getOwner() == this.getAgentId()){
+                    fromTerritoriesOwned++;
+                }
+            }
+
+            if(toContinentTerritories.size() != 0){
+                toContinentPercent = toTerritoriesOwned/toContinentTerritories.size();
+            }
+
+            if(fromContinentTerritories.size() != 0){
+                fromContinentPercent = fromTerritoriesOwned/fromContinentTerritories.size();
+            }
+            //Continent end section
+
 
             
             sourcearmy = sov.getArmies();
@@ -146,12 +186,19 @@ public class MyActionSensorArray
             fin.set(0, 6, str);
             fin.set(0, 7, sso);
             fin.set(0, 8, ssr);
+            fin.set(0, 8, ssr);
+            fin.set(0, 9, toContinentId);
+            fin.set(0, 10, toContinentPercent);
+
             //dst
-            fin.set(0, 9, targetarmy);
-            fin.set(0, 10, ttotale);
-            fin.set(0, 11, ttr);
-            fin.set(0, 12, tso);
-            fin.set(0, 13, tsr);
+            fin.set(0, 11, targetarmy);
+            fin.set(0, 12, ttotale);
+            fin.set(0, 13, ttr);
+            fin.set(0, 14, tso);
+            fin.set(0, 15, tsr);
+            fin.set(0, 16, fromContinentId);
+            fin.set(0, 17, fromContinentPercent);
+
 
 
         if(action instanceof AttackAction){
@@ -175,10 +222,10 @@ public class MyActionSensorArray
             //action
             fin.set(0, 0, 1.0);
             //attack
-            fin.set(0, 14, aratio);
-            fin.set(0, 15, totalthreat);
-            fin.set(0, 16, threeDice);
-            fin.set(0, 17, armyDif);
+            fin.set(0, 18, aratio);
+            fin.set(0, 19, totalthreat);
+            fin.set(0, 20, threeDice);
+            fin.set(0, 21, armyDif);
         }
         else if(action instanceof FortifyAction){
             FortifyAction fa = (FortifyAction) action;
@@ -189,9 +236,9 @@ public class MyActionSensorArray
             //action
             fin.set(0, 1, 1.0);
             //fortify
-            fin.set(0, 18, delta);
-            fin.set(0, 19, sourceDelta);
-            fin.set(0, 20, targetDelta);
+            fin.set(0, 22, delta);
+            fin.set(0, 23, sourceDelta);
+            fin.set(0, 24, targetDelta);
             
 
         }
