@@ -15,6 +15,8 @@ import edu.bu.pas.risk.action.RedeemCardsAction;
 import edu.bu.pas.risk.agent.rewards.RewardFunction;
 import edu.bu.pas.risk.agent.rewards.RewardType;
 import edu.bu.pas.risk.territory.Territory;
+import edu.bu.pas.risk.territory.Continent;
+
 import edu.bu.pas.risk.territory.TerritoryCard;
 import edu.bu.pas.risk.util.Registry;
 
@@ -46,15 +48,15 @@ public class MyActionRewardFunction
     public double getUpperBound() { return 1.0; }
 
     public boolean hasEnemy(final GameView state, final Territory action){
-    Set<Territory> neighbors = action.adjacentTerritories(); //get neighbors
-    Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
+        Set<Territory> neighbors = action.adjacentTerritories(); //get neighbors
+        Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
 
-    for(Territory n : neighbors){
-        TerritoryOwnerView nov = owners.getById(n.id());
-        if(nov.getOwner() != this.getAgentId()){
-            return true;
+        for(Territory n : neighbors){
+            TerritoryOwnerView nov = owners.getById(n.id());
+            if(nov.getOwner() != this.getAgentId()){
+                return true;
+            }
         }
-    }
 
 
         return false;
@@ -79,6 +81,27 @@ public class MyActionRewardFunction
             Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
             TerritoryOwnerView fov = owners.getById(f.id());
             TerritoryOwnerView tov = owners.getById(t.id());
+
+            //completes continent logic
+            Continent fContinent = f.continent();
+            Continent tContinent = t.continent();
+            if(fContinent.id() == tContinent.id()){
+                double numTerritoriesOwned = 0;
+                Set<Territory> territories = fContinent.territories();
+                for(Territory ter : territories){
+                    TerritoryOwnerView nov = owners.getById(ter.id());
+                    if(nov.getOwner() == this.getAgentId()){
+                        numTerritoriesOwned++;
+                    }
+                }
+                if(numTerritoriesOwned + 1 == territories.size()){
+                    reward += 0.8;  //attack this territory could complete the continent!
+                }
+            }
+            //complete continent logic
+
+
+
             double myArmies = fov.getArmies();
             double enemies = tov.getArmies();
 
