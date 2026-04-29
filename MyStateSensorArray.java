@@ -7,6 +7,7 @@ import edu.bu.jmat.Matrix;
 import edu.bu.pas.risk.GameView;
 import edu.bu.pas.risk.util.Registry;
 import edu.bu.pas.risk.territory.Board;
+import edu.bu.pas.risk.territory.Continent;
 import edu.bu.pas.risk.territory.Territory;
 import edu.bu.pas.risk.TerritoryOwnerView;
 import edu.bu.pas.risk.agent.senses.StateSensorArray;
@@ -16,6 +17,7 @@ import edu.bu.pas.risk.agent.IAgent;
 
 // JAVA PROJECT IMPORTS
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -24,7 +26,7 @@ import java.util.List;
 public class MyStateSensorArray
     extends StateSensorArray
 {
-    public static final int NUM_FEATURES = 15;
+    public static final int NUM_FEATURES = 8;
 
     public MyStateSensorArray(final int agentId)
     {
@@ -40,9 +42,37 @@ public class MyStateSensorArray
         
         Registry<TerritoryOwnerView> owners = state.getTerritoryOwners();
         Matrix fin = Matrix.full(1, NUM_FEATURES, 0);
+        
+        
+        //Continent section
+        Board board = state.getBoard();
+        Registry<Continent> continents = board.continents();
+        double numContinentsOwned = 0;;
+        double numBonusArmies = 0;
+
+        for (Continent continent : continents){
+            double continentPercent = 0;
+            double territoriesOwned = 0;
+            Set<Territory> territories = continent.territories();
+            for(Territory territory : territories){
+                TerritoryOwnerView nov = owners.getById(territory.id());
+                if(nov.getOwner() == this.getAgentId()){
+                    territoriesOwned++;
+                }
+            }
+            if(territories.size() != 0){
+                continentPercent = territoriesOwned/territories.size();
+            }
+            if(continentPercent == 1){
+                numContinentsOwned++;
+                numBonusArmies += continent.armiesPerTurn();
+            }
+        }
+        //Continent section
+
+
+
         double[] info = new double[state.getNumAgents() * 3];
-
-
         int iterator = 0; //keep track of agent idxs
         for(int i = 0; i < info.length; i = i + 3){
             info[i] = agents.get(iterator).agentId(); 
@@ -111,6 +141,8 @@ public class MyStateSensorArray
             fin.set(0, 3, 0);
             fin.set(0, 5, 0);
         }
+        fin.set(0, 6, numContinentsOwned);
+        fin.set(0, 7, numBonusArmies);
         
         
         return fin; // row vector
