@@ -115,7 +115,7 @@ public class RiskQAgent
 
     private double epsilon() {
         turns++;
-        return Math.pow(0.9999, turns);
+        return Math.max(0.05, Math.pow(0.999, turns));
     }
 
     /**
