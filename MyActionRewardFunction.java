@@ -16,7 +16,7 @@ import edu.bu.pas.risk.agent.rewards.RewardFunction;
 import edu.bu.pas.risk.agent.rewards.RewardType;
 import edu.bu.pas.risk.territory.Territory;
 import edu.bu.pas.risk.territory.Continent;
-
+import edu.bu.pas.risk.territory.Board;
 import edu.bu.pas.risk.territory.TerritoryCard;
 import edu.bu.pas.risk.util.Registry;
 
@@ -63,7 +63,7 @@ public class MyActionRewardFunction
     }
 
     /** {@inheritDoc} */
-    public double getStateReward(final GameView state) { return 10.0; } // this sucks you'll need to change this
+    public double getStateReward(final GameView state) { return 0.0; } // this sucks you'll need to change this
 
     /** {@inheritDoc} */
     public double getHalfTransitionReward(final GameView state,
@@ -95,30 +95,48 @@ public class MyActionRewardFunction
                     }
                 }
                 if(numTerritoriesOwned + 1 == territories.size()){
-                    reward += 0.8;  //attack this territory could complete the continent!
+                    reward += 0.35;  //attack this territory could complete the continent!
                 }
+
             }
             //complete continent logic
 
+            int numTerritoriesOwned = 0;
+            Board b = state.getBoard();
+            Registry<Territory> terrs = b.territories();
+            for(Territory ter : terrs) {
+                if(owners.getById(ter.id()).getOwner() == this.getAgentId()) {
+                    numTerritoriesOwned++;
+                }
+            }
 
+            if(numTerritoriesOwned <= 1) { // Punish for being in a losing state
+                reward -= 0.5;
+            }
+
+            if(terrs.size() - 1 == numTerritoriesOwned) { // Reward for being in a winning state
+                reward += 0.35;
+            }
 
             double myArmies = fov.getArmies();
             double enemies = tov.getArmies();
 
             if(enemies != 0) {
                 if(myArmies / enemies >= 2.0){
-                    reward += 0.8;
+                    reward += 0.25;
                 } else if(myArmies / enemies >= 1.5) {
-                    reward += 0.6;
+                    reward += 0.2;
                 } else if(myArmies / enemies < 1.0) {
-                    reward -= 0.5;
+                    reward -= 0.15;
                 }
             }
             
 
             if(myArmies < 4){
-                reward -= 0.2;
+                reward -= 0.15;
             }
+
+
             
         }
         else if(action instanceof FortifyAction){
@@ -146,7 +164,7 @@ public class MyActionRewardFunction
                 }
                 int remain = fov.getArmies() - deltaArmies;
                 if(remain < forStrongest){ //punish weakening a position
-                    reward -= 0.4;
+                    reward -= 0.3;
                 }
             }
 
@@ -172,13 +190,13 @@ public class MyActionRewardFunction
         }
         else if(action instanceof RedeemCardsAction){
 
-            reward += 0.4;
+            reward += 0.25;
 
         }
         else {//NoAction instance
             return -1;
         }
-            reward -= 0.1;
+            reward -= 0.2;
             return reward; }
 
 
