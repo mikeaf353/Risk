@@ -26,7 +26,7 @@ import java.util.Set;
 public class MyStateSensorArray
     extends StateSensorArray
 {
-    public static final int NUM_FEATURES = 8;
+    public static final int NUM_FEATURES = 15;
 
     public MyStateSensorArray(final int agentId)
     {
