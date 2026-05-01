@@ -44,8 +44,8 @@ public class MyPlacementSensorArray
         int continentId = continent.id();
         Set<Territory> continentTerritories = continent.territories(); 
 
-        int continentPercent = 0;
-        int territoriesOwned = 0;
+        double continentPercent = 0;
+        double territoriesOwned = 0;
 
         for(Territory myTerritory : continentTerritories){
             TerritoryOwnerView nov = owners.getById(myTerritory.id());
