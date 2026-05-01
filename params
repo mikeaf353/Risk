@@ -1,0 +1,1 @@
+java -cp "./lib/*:./src:./doc" edu.bu.pas.risk.SequentialTrain pas.risk.agent.RiskQAgent edu.bu.pas.risk.agent.ff.AggroAgent -t 250 -v 10 -x 200000 -g 0.98 -n 0.0005 -i ./params/qFunction150.model --outOffset 151 | tee my_logfile.log
